@@ -21,58 +21,145 @@ main :: IO ()
 main = hspec $ do
   describe "Tic-Tac-Toe" $ do
     it "Recognizes three Xs in the top row as a winner." $
-      hasWinner (Board [[X,X,X],[],[]]) `shouldBe` (True, X)
+      hasWinner [[X,X,X],[],[]] `shouldBe` (True, X)
 
     it "Recognizes three Xs in the middle row as a winner." $
-      hasWinner (Board [[],[X,X,X],[]]) `shouldBe` (True, X)
+      hasWinner [[],[X,X,X],[]] `shouldBe` (True, X)
 
     it "Recognizes three Xs in the bottom row as a winner." $
-      hasWinner (Board [[],[],[X,X,X]]) `shouldBe` (True, X)
+      hasWinner [[],[],[X,X,X]] `shouldBe` (True, X)
 
     it "Recognizes three Xs in the first column as a winner." $
-      hasWinner (Board [[X,Empty,Empty],[X,Empty,Empty],[X,Empty,Empty]]) `shouldBe` (True, X)
+      hasWinner [[X,Empty,Empty],[X,Empty,Empty],[X,Empty,Empty]] `shouldBe` (True, X)
 
     it "Recognizes three Xs in the middle column as a winner." $
-      hasWinner (Board [[Empty,X,Empty],[Empty,X,Empty],[Empty,X,Empty]]) `shouldBe` (True, X)
+      hasWinner [[Empty,X,Empty],[Empty,X,Empty],[Empty,X,Empty]] `shouldBe` (True, X)
 
     it "Recognizes three Xs in the last column as a winner." $
-      hasWinner (Board [[Empty,Empty,X],[Empty,Empty,X],[Empty,Empty,X]]) `shouldBe` (True, X)
+      hasWinner [[Empty,Empty,X],[Empty,Empty,X],[Empty,Empty,X]] `shouldBe` (True, X)
 
     it "Recognizes three Xs in the \\ diagonal as a winner." $
-      hasWinner (Board [[X,Empty,Empty],[Empty,X,Empty],[Empty,Empty,X]]) `shouldBe` (True, X)
+      hasWinner [[X,Empty,Empty],[Empty,X,Empty],[Empty,Empty,X]] `shouldBe` (True, X)
 
     it "Recognizes three Xs in the / diagonal as a winner." $
-      hasWinner (Board [[Empty,Empty,X],[Empty,X,Empty],[X,Empty,Empty]]) `shouldBe` (True, X)
+      hasWinner [[Empty,Empty,X],[Empty,X,Empty],[X,Empty,Empty]] `shouldBe` (True, X)
 
     it "Recognizes three Os in the top row as a winner." $
-      hasWinner (Board [[O,O,O],[],[]]) `shouldBe` (True, O)
+      hasWinner [[O,O,O],[],[]] `shouldBe` (True, O)
 
     it "Recognizes three Os in the middle row as a winner." $
-      hasWinner (Board [[],[O,O,O],[]]) `shouldBe` (True, O)
+      hasWinner [[],[O,O,O],[]] `shouldBe` (True, O)
 
     it "Recognizes three Os in the bottom row as a winner." $
-      hasWinner (Board [[],[],[O,O,O]]) `shouldBe` (True, O)
+      hasWinner [[],[],[O,O,O]] `shouldBe` (True, O)
 
     it "Recognizes three Os in the first column as a winner." $
-      hasWinner (Board [[O,Empty,Empty],[O,Empty,Empty],[O,Empty,Empty]]) `shouldBe` (True, O)
+      hasWinner [[O,Empty,Empty],[O,Empty,Empty],[O,Empty,Empty]] `shouldBe` (True, O)
 
     it "Recognizes three Os in the middle column as a winner." $
-      hasWinner (Board [[Empty,O,Empty],[Empty,O,Empty],[Empty,O,Empty]]) `shouldBe` (True, O)
+      hasWinner [[Empty,O,Empty],[Empty,O,Empty],[Empty,O,Empty]] `shouldBe` (True, O)
 
     it "Recognizes three Os in the last column as a winner." $
-      hasWinner (Board [[Empty,Empty,O],[Empty,Empty,O],[Empty,Empty,O]]) `shouldBe` (True, O)
+      hasWinner [[Empty,Empty,O],[Empty,Empty,O],[Empty,Empty,O]] `shouldBe` (True, O)
 
     it "Recognizes three Os in the \\ diagonal as a winner." $
-      hasWinner (Board [[O,Empty,Empty],[Empty,O,Empty],[Empty,Empty,O]]) `shouldBe` (True, O)
+      hasWinner [[O,Empty,Empty],[Empty,O,Empty],[Empty,Empty,O]] `shouldBe` (True, O)
 
     it "Recognizes three Os in the / diagonal as a winner." $
-      hasWinner (Board [[Empty,Empty,O],[Empty,O,Empty],[O,Empty,Empty]]) `shouldBe` (True, O)
+      hasWinner [[Empty,Empty,O],[Empty,O,Empty],[O,Empty,Empty]] `shouldBe` (True, O)
 
     it "Recognizes a full board." $
-      isFull (Board [[X,O,X],[O,X,O],[O,X,O]]) `shouldBe` True
+      isFull [[X,O,X],[O,X,O],[O,X,O]] `shouldBe` True
 
     it "Recognizes a board in-play." $
-      play (Board [[X,Empty,O],[O,X,Empty],[Empty,Empty,Empty]]) `shouldBe` InPlay
+      play [[X,Empty,O],[O,X,Empty],[Empty,Empty,Empty]] `shouldBe` InPlay
 
-    it "Places a piece onto the board." $
-       place (Board [[],[],[]]) X (1,1) `shouldBe` Board [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,Empty,Empty]]
+    it "Determines it cannot place a piece onto the board." $
+      canPlace [[],[Empty,O,Empty],[]] X (1,1) `shouldBe` False
+
+    it "Determines it can place a piece onto the board." $
+      canPlace [[Empty,Empty,Empty],[Empty,O,Empty],[]] X (0,0) `shouldBe` True
+
+    it "Places a piece onto the NW corner of the board." $
+      place [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X (0,0) `shouldBe` [[X,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]]
+
+    it "Places a piece onto the center of the board." $
+      place [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X (1,1) `shouldBe` [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,Empty,Empty]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[X,X,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,0),(0,1)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,X,X],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,1),(0,2)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,Empty],[X,X,Empty],[Empty,Empty,Empty]] `shouldBe` [[(1,0),(1,1)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,Empty],[Empty,X,X],[Empty,Empty,Empty]] `shouldBe` [[(1,1),(1,2)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,Empty],[Empty,Empty,Empty],[X,X,Empty]] `shouldBe` [[(2,0),(2,1)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,X,X]] `shouldBe` [[(2,1),(2,2)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[X,Empty,Empty],[X,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,0),(1,0)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,Empty],[X,Empty,Empty],[X,Empty,Empty]] `shouldBe` [[(1,0),(2,0)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,X,Empty],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,1),(1,1)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,X,Empty]] `shouldBe` [[(1,1),(2,1)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,X],[Empty,Empty,X],[Empty,Empty,Empty]] `shouldBe` [[(0,2),(1,2)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,Empty],[Empty,Empty,X],[Empty,Empty,X]] `shouldBe` [[(1,2),(2,2)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[X,Empty,X],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,0),(0,2)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,Empty],[X,Empty,X],[Empty,Empty,Empty]] `shouldBe` [[(1,0),(1,2)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,Empty],[Empty,Empty,Empty],[X,Empty,X]] `shouldBe` [[(2,0),(2,2)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[X,Empty,Empty],[Empty,Empty,Empty],[X,Empty,Empty]] `shouldBe` [[(0,0),(2,0)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,X,Empty],[Empty,Empty,Empty],[Empty,X,Empty]] `shouldBe` [[(0,1),(2,1)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,X],[Empty,Empty,Empty],[Empty,Empty,X]] `shouldBe` [[(0,2),(2,2)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[X,Empty,Empty],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,0),(1,1)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[X,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,X]] `shouldBe` [[(0,0),(2,2)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,Empty,X]] `shouldBe` [[(1,1),(2,2)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,X],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,2),(1,1)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,X],[Empty,Empty,Empty],[X,Empty,Empty]] `shouldBe` [[(0,2),(2,0)]]
+
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,Empty],[Empty,X,Empty],[X,Empty,Empty]] `shouldBe` [[(1,1),(2,0)]]
+
+    it "Blocks threats." $
+      block $ threats [[Empty,Empty,Empty],[Empty,X,Empty],[X,Empty,Empty]] `shouldBe` [[Empty,Empty,O],[Empty,X,Empty],[X,Empty,Empty]]
+
+-- TODO: Redesign last test.
+-- TODO: Redesign threat recognition tests.
