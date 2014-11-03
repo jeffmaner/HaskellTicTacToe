@@ -75,10 +75,10 @@ main = hspec $ do
       play [[X,Empty,O],[O,X,Empty],[Empty,Empty,Empty]] `shouldBe` InPlay
 
     it "Determines it cannot place a piece onto the board." $
-      canPlace [[],[Empty,O,Empty],[]] X (1,1) `shouldBe` False
+      canPlace [[],[Empty,O,Empty],[]] (1,1) `shouldBe` False
 
     it "Determines it can place a piece onto the board." $
-      canPlace [[Empty,Empty,Empty],[Empty,O,Empty],[]] X (0,0) `shouldBe` True
+      canPlace [[Empty,Empty,Empty],[Empty,O,Empty],[]] (0,0) `shouldBe` True
 
     it "Places a piece onto the NW corner of the board." $
       place [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X (0,0) `shouldBe` [[X,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]]
@@ -86,80 +86,90 @@ main = hspec $ do
     it "Places a piece onto the center of the board." $
       place [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X (1,1) `shouldBe` [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,Empty,Empty]]
 
-    it "Recognizes the threat of two icons in a row." $
-      threats [[X,X,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,0),(0,1)]]
+    it "Places a piece onto the NE corner of the board." $
+      place [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X (0,2) `shouldBe` [[Empty,Empty,X],[Empty,Empty,Empty],[Empty,Empty,Empty]]
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,X,X],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,1),(0,2)]]
+      threats [[X,X,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` Just (0,2)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,Empty],[X,X,Empty],[Empty,Empty,Empty]] `shouldBe` [[(1,0),(1,1)]]
+      threats [[Empty,X,X],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` Just (0,0)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,Empty],[Empty,X,X],[Empty,Empty,Empty]] `shouldBe` [[(1,1),(1,2)]]
+      threats [[Empty,Empty,Empty],[X,X,Empty],[Empty,Empty,Empty]] `shouldBe` Just (1,2)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,Empty],[Empty,Empty,Empty],[X,X,Empty]] `shouldBe` [[(2,0),(2,1)]]
+      threats [[Empty,Empty,Empty],[Empty,X,X],[Empty,Empty,Empty]] `shouldBe` Just (1,0)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,X,X]] `shouldBe` [[(2,1),(2,2)]]
+      threats [[Empty,Empty,Empty],[Empty,Empty,Empty],[X,X,Empty]] `shouldBe` Just (2,2)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[X,Empty,Empty],[X,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,0),(1,0)]]
+      threats [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,X,X]] `shouldBe` Just (2,0)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,Empty],[X,Empty,Empty],[X,Empty,Empty]] `shouldBe` [[(1,0),(2,0)]]
+      threats [[X,Empty,Empty],[X,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` Just (2,0)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,X,Empty],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,1),(1,1)]]
+      threats [[Empty,Empty,Empty],[X,Empty,Empty],[X,Empty,Empty]] `shouldBe` Just (0,0)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,X,Empty]] `shouldBe` [[(1,1),(2,1)]]
+      threats [[Empty,X,Empty],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` Just (2,1)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,X],[Empty,Empty,X],[Empty,Empty,Empty]] `shouldBe` [[(0,2),(1,2)]]
+      threats [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,X,Empty]] `shouldBe` Just (0,1)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,Empty],[Empty,Empty,X],[Empty,Empty,X]] `shouldBe` [[(1,2),(2,2)]]
+      threats [[Empty,Empty,X],[Empty,Empty,X],[Empty,Empty,Empty]] `shouldBe` Just (2,2)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[X,Empty,X],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,0),(0,2)]]
+      threats [[Empty,Empty,Empty],[Empty,Empty,X],[Empty,Empty,X]] `shouldBe` Just (0,2)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,Empty],[X,Empty,X],[Empty,Empty,Empty]] `shouldBe` [[(1,0),(1,2)]]
+      threats [[X,Empty,X],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` Just (0,1)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,Empty],[Empty,Empty,Empty],[X,Empty,X]] `shouldBe` [[(2,0),(2,2)]]
+      threats [[Empty,Empty,Empty],[X,Empty,X],[Empty,Empty,Empty]] `shouldBe` Just (1,1)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[X,Empty,Empty],[Empty,Empty,Empty],[X,Empty,Empty]] `shouldBe` [[(0,0),(2,0)]]
+      threats [[Empty,Empty,Empty],[Empty,Empty,Empty],[X,Empty,X]] `shouldBe` Just (2,1)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,X,Empty],[Empty,Empty,Empty],[Empty,X,Empty]] `shouldBe` [[(0,1),(2,1)]]
+      threats [[X,Empty,Empty],[Empty,Empty,Empty],[X,Empty,Empty]] `shouldBe` Just (1,0)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,X],[Empty,Empty,Empty],[Empty,Empty,X]] `shouldBe` [[(0,2),(2,2)]]
+      threats [[Empty,X,Empty],[Empty,Empty,Empty],[Empty,X,Empty]] `shouldBe` Just (1,1)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[X,Empty,Empty],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,0),(1,1)]]
+      threats [[Empty,Empty,X],[Empty,Empty,Empty],[Empty,Empty,X]] `shouldBe` Just (1,2)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[X,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,X]] `shouldBe` [[(0,0),(2,2)]]
+      threats [[X,Empty,Empty],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` Just (2,2)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,Empty,X]] `shouldBe` [[(1,1),(2,2)]]
+      threats [[X,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,X]] `shouldBe` Just (1,1)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,X],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` [[(0,2),(1,1)]]
+      threats [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,Empty,X]] `shouldBe` Just (0,0)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,X],[Empty,Empty,Empty],[X,Empty,Empty]] `shouldBe` [[(0,2),(2,0)]]
+      threats [[Empty,Empty,X],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` Just (2,0)
 
     it "Recognizes the threat of two icons in a row." $
-      threats [[Empty,Empty,Empty],[Empty,X,Empty],[X,Empty,Empty]] `shouldBe` [[(1,1),(2,0)]]
+      threats [[Empty,Empty,X],[Empty,Empty,Empty],[X,Empty,Empty]] `shouldBe` Just (1,1)
 
-    it "Blocks threats." $
-      block $ threats [[Empty,Empty,Empty],[Empty,X,Empty],[X,Empty,Empty]] `shouldBe` [[Empty,Empty,O],[Empty,X,Empty],[X,Empty,Empty]]
+    it "Recognizes the threat of two icons in a row." $
+      threats [[Empty,Empty,Empty],[Empty,X,Empty],[X,Empty,Empty]] `shouldBe` Just (0,2)
 
--- TODO: Redesign last test.
--- TODO: Redesign threat recognition tests.
+    it "Blocks threats." $ do
+      let b = [[Empty,Empty,Empty],[Empty,X,Empty],[X,Empty,Empty]]
+          t = case threats b of
+                Just x  -> x
+                Nothing -> error "Expected threat."
+      block b X t `shouldBe` [[Empty,Empty,O],[Empty,X,Empty],[X,Empty,Empty]]
+
+    it "Prefers center over corners." $
+      preference [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` (1,1)
+
+    it "Prefers corners over middle edges." $
+      preference [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` (0,1)
