@@ -1,5 +1,8 @@
 module Game where
 
+import Data.Char (toLower)
+--import System.IO (hFlush, stdout)
+import System.IO (BufferMode (..), hSetBuffering, stdout)
 import TicTacToe
 
 -- I'll use [these][1] as the requirements:
@@ -18,9 +21,10 @@ import TicTacToe
 
 main :: IO ()
 main = do
-  let board = [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]]
+  hSetBuffering stdout NoBuffering
 
   putStr "Welcome to Tic-Tac-Toe. Would you like to be Xs or Os? "
+
   userPreference <- getLine
   let preference = parsePreference userPreference
   let (userIcon, computerIcon) = case preference of
@@ -31,15 +35,18 @@ main = do
   putStrLn "Please imagine the upper-left corner of the board to be square 0,"
   putStrLn "the top middle, square 1, etc."
 
-  let board0 = playUser board userIcon
-  let board1 = playComputer board0 computerIcon
-  let board2 = playUser board1 userIcon
-  let board3 = playComputer board2 computerIcon
-  let board4 = playUser board3 userIcon
-  let board5 = playComputer board4 computerIcon
-  let board6 = playUser board5 userIcon
-  let board7 = playComputer board6 computerIcon
-  let board8 = playUser board7 userIcon
+  let board = [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]]
+
+  board0 <- playUser board userIcon
+  board1 <- playComputer board0 computerIcon
+  board2 <- playUser board1 userIcon
+  board3 <- playComputer board2 computerIcon
+  board4 <- playUser board3 userIcon
+  board5 <- playComputer board4 computerIcon
+  board6 <- playUser board5 userIcon
+  board7 <- playComputer board6 computerIcon
+  board8 <- playUser board7 userIcon
+  putStrLn "Good game!"
 
 parsePreference :: String -> Maybe Icon
 parsePreference s =
@@ -55,50 +62,61 @@ playUser, playComputer :: Board -> Icon -> IO Board
 
 playUser b i =
   case play b of
-    WinnerX -> do putStrLn "X wins!"; return b
-    WinnerO -> do putStrLn "O wins!"; return b
-    Draw    -> do putStrLn "It's a draw."; return b
-    InPlay  -> do putStr "Please indicate your move. "
-                 -- Parse error on c.
-                 c <- getChar
-                 let c' = numToCoord c
-                 if isValidMove c' && canPlace b c'
-                 then place b i c'
-                 else error "Ack! Bad input."
+    WinnerX -> declareWinner b X
+    WinnerO -> declareWinner b O
+    Draw    -> declareDraw b
+    InPlay  -> play' ()
+  where play' () = do
+          c <- putStr "Please indicate your move. " >> getChar
+          let c' = numToCoord c
+          if isValidMove c
+          then if canPlace b c'
+               then return $ place b i c'
+               else error "There's already an icon there."
+          else error "Ack! Bad input."
 
 playComputer b i =
   case play b of
-    WinnerX -> do putStrLn "X wins!"; return b
-    WinnerO -> do putStrLn "O wins!"; return b
-    Draw    -> do putStrLn "It's a draw."; return b
-    InPlay  -> do let ts = threats b
-                 let p = case ts of
-                           Just x  -> x
-                           Nothing -> preference b
-                 putStrLn "I play square " ++ coordToNum p ++ "."
-                 place b i p
+    WinnerX -> declareWinner b X
+    WinnerO -> declareWinner b O
+    Draw    -> declareDraw b
+    InPlay  -> play' ()
+  where play' () = do
+          let p = case threats b of
+                    Just x  -> x
+                    Nothing -> preference b
+          putStrLn $ "I play square " ++ coordToNum p ++ "."
+          return $ place b i p
+
+declareWinner :: Board -> Icon -> IO Board
+declareWinner b i = do
+  putStrLn $ (show i) ++ " wins!"
+  return b
+
+declareDraw :: Board -> IO Board
+declareDraw b = do
+  putStrLn "It's a draw."
+  return b
 
 -- TODO: Change these two functions to an association list.
 numToCoord :: Char -> (Int,Int)
-numToCoord
-  | '0' -> (0,0)
-  | '1' -> (0,1)
-  | '2' -> (0,2)
-  | '3' -> (1,0)
-  | '4' -> (1,1)
-  | '5' -> (1,2)
-  | '6' -> (2,0)
-  | '7' -> (2,1)
-  | '8' -> (2,2)
+numToCoord '0' = (0,0)
+numToCoord '1' = (0,1)
+numToCoord '2' = (0,2)
+numToCoord '3' = (1,0)
+numToCoord '4' = (1,1)
+numToCoord '5' = (1,2)
+numToCoord '6' = (2,0)
+numToCoord '7' = (2,1)
+numToCoord '8' = (2,2)
 
 coordToNum :: (Int,Int) -> String
-coordToNum
-  | (0,0) -> "0"
-  | (0,1) -> "1"
-  | (0,2) -> "2"
-  | (1,0) -> "3"
-  | (1,1) -> "4"
-  | (1,2) -> "5"
-  | (2,0) -> "6"
-  | (2,1) -> "7"
-  | (2,2) -> "8"
+coordToNum (0,0) = "0"
+coordToNum (0,1) = "1"
+coordToNum (0,2) = "2"
+coordToNum (1,0) = "3"
+coordToNum (1,1) = "4"
+coordToNum (1,2) = "5"
+coordToNum (2,0) = "6"
+coordToNum (2,1) = "7"
+coordToNum (2,2) = "8"
