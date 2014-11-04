@@ -1,7 +1,7 @@
 module Game where
 
 import Data.Char (toLower)
---import System.IO (hFlush, stdout)
+import Data.List (elemIndex)
 import System.IO (BufferMode (..), hSetBuffering, stdout)
 import TicTacToe
 
@@ -38,14 +38,23 @@ main = do
   let board = [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]]
 
   board0 <- playUser board userIcon
+  draw board0
   board1 <- playComputer board0 computerIcon
+  draw board1
   board2 <- playUser board1 userIcon
+  draw board2
   board3 <- playComputer board2 computerIcon
+  draw board3
   board4 <- playUser board3 userIcon
+  draw board4
   board5 <- playComputer board4 computerIcon
+  draw board5
   board6 <- playUser board5 userIcon
+  draw board6
   board7 <- playComputer board6 computerIcon
+  draw board7
   board8 <- playUser board7 userIcon
+  draw board8
   putStrLn "Good game!"
 
 parsePreference :: String -> Maybe Icon
@@ -55,21 +64,18 @@ parsePreference s =
     'o'  -> Just O
     otherwise -> Nothing
 
-isValidMove :: Char -> Bool
-isValidMove = (`elem` ['0'..'8'])
-
 playUser, playComputer :: Board -> Icon -> IO Board
 
-playUser b i =
+playUser b i = do
   case play b of
     WinnerX -> declareWinner b X
     WinnerO -> declareWinner b O
     Draw    -> declareDraw b
-    InPlay  -> play' ()
-  where play' () = do
-          c <- putStr "Please indicate your move. " >> getChar
-          let c' = numToCoord c
-          if isValidMove c
+    InPlay  -> play' b i
+  where play' b i = do
+          c <- putStr "Please indicate your move. " >> getLine >>= \x->return x
+          let c' = numToCoord (read c :: Int)
+          if isValidMove $ head c
           then if canPlace b c'
                then return $ place b i c'
                else error "There's already an icon there."
@@ -85,8 +91,11 @@ playComputer b i =
           let p = case threats b of
                     Just x  -> x
                     Nothing -> preference b
-          putStrLn $ "I play square " ++ coordToNum p ++ "."
+          putStrLn $ "I play square " ++ (show $ coordToNum p) ++ "."
           return $ place b i p
+
+isValidMove :: Char -> Bool
+isValidMove = (`elem` ['0'..'8'])
 
 declareWinner :: Board -> Icon -> IO Board
 declareWinner b i = do
@@ -98,25 +107,28 @@ declareDraw b = do
   putStrLn "It's a draw."
   return b
 
--- TODO: Change these two functions to an association list.
-numToCoord :: Char -> (Int,Int)
-numToCoord '0' = (0,0)
-numToCoord '1' = (0,1)
-numToCoord '2' = (0,2)
-numToCoord '3' = (1,0)
-numToCoord '4' = (1,1)
-numToCoord '5' = (1,2)
-numToCoord '6' = (2,0)
-numToCoord '7' = (2,1)
-numToCoord '8' = (2,2)
+coordinates = [(0,0),(0,1),(0,2),(1,0),(1,1),(1,2),(2,0),(2,1),(2,2)]
 
-coordToNum :: (Int,Int) -> String
-coordToNum (0,0) = "0"
-coordToNum (0,1) = "1"
-coordToNum (0,2) = "2"
-coordToNum (1,0) = "3"
-coordToNum (1,1) = "4"
-coordToNum (1,2) = "5"
-coordToNum (2,0) = "6"
-coordToNum (2,1) = "7"
-coordToNum (2,2) = "8"
+numToCoord :: Int -> (Int,Int)
+numToCoord = (coordinates!!)
+
+coordToNum :: (Int,Int) -> Int
+coordToNum c = case c `elemIndex` coordinates of
+                 Just n  -> n
+                 Nothing -> error "Invalid coordinate."
+
+draw :: Board -> IO ()
+draw [r1@[a,b,c],r2@[d,e,f],r3@[g,h,i]] = do
+  drawRow r1
+  drawRow r2
+  drawRow r3
+  where drawRow [x,y,z] = do
+          drawIcon x
+          putStr "|"
+          drawIcon y
+          putStr "|"
+          drawIcon z
+          putStrLn ""
+        drawIcon i = case i of
+                       Empty     -> do putStr " "
+                       otherwise -> do putStr $ show i
