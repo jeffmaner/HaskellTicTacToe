@@ -43,6 +43,7 @@ play b = case (isFull b, hasWinner b) of
            (True, _)     -> Draw
            otherwise     -> InPlay
 
+-- TODO: Fix this. It's very buggy.
 place :: Board -> Icon -> (Int,Int) -> Board
 place b i (x,y)
   | canPlace b (x,y) = place' [] [] 0 0
@@ -51,7 +52,10 @@ place b i (x,y)
           | r==x && c==y = ba ++ [(reverse $ i:ra) ++ restOfRow b r c] ++ restOfRows b r
           | c==2       = place' ((reverse (b!!r!!c:ra)):ba) [] (r+1) 0
           | otherwise = place' ba (b!!r!!c:ra) r (c+1)
-        restOfRow b r c = drop (c+1) $ head $ restOfRows b r
+        restOfRow b r c = let rs = restOfRows b r
+                           in case rs of
+                                []        -> drop (c+1) $ head b -- I think it's this that's buggy.
+                                otherwise -> drop (c+1) $ head rs
         restOfRows b r =  drop (r+1) b
 
 canPlace :: Board -> (Int,Int) -> Bool
@@ -102,7 +106,7 @@ block :: Board -> Icon -> (Int,Int) -> Board
 block b X (x,y) = place b O (x,y)
 block b O (x,y) = place b X (x,y)
 
-preferences = [(1,1),(0,1),(0,2),(2,0),(2,2),(0,1),(1,0),(1,2),(2,1)]
+preferences = [(1,1),(0,0),(0,2),(2,0),(2,2),(0,1),(1,0),(1,2),(2,1)]
 
 preference :: Board -> (Int,Int)
 preference b = f preferences
