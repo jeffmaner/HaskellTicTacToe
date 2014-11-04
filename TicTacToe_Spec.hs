@@ -89,6 +89,12 @@ main = hspec $ do
     it "Places a piece onto the NE corner of the board." $
       place [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X (0,2) `shouldBe` [[Empty,Empty,X],[Empty,Empty,Empty],[Empty,Empty,Empty]]
 
+    it "Places a piece onto the SW corner of the board." $
+      place [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X (2,0) `shouldBe` [[Empty,Empty,Empty],[Empty,Empty,Empty],[X,Empty,Empty]]
+
+    it "Places a piece onto the SE corner of the board." $
+      place [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X (2,2) `shouldBe` [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,X]]
+
     it "Recognizes the threat of two icons in a row." $
       threats [[X,X,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` Just (0,2)
 
@@ -172,4 +178,4 @@ main = hspec $ do
       preference [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` (1,1)
 
     it "Prefers corners over middle edges." $
-      preference [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` (0,1)
+      preference [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` (0,0)
