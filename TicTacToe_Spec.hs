@@ -95,6 +95,9 @@ main = hspec $ do
     it "Places a piece onto the SE corner of the board." $
       place [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] X (2,2) `shouldBe` [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,X]]
 
+    it "Places a piece onto a non-empty board." $
+      place [[Empty,Empty,Empty], [Empty,X,Empty],[Empty,Empty,Empty]] O (0,0) `shouldBe` [[O,Empty,Empty],[Empty,X,Empty],[Empty,Empty,Empty]]
+
     it "Recognizes the threat of two icons in a row." $
       threats [[X,X,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]] `shouldBe` Just (0,2)
 
@@ -179,3 +182,20 @@ main = hspec $ do
 
     it "Prefers corners over middle edges." $
       preference [[Empty,Empty,Empty],[Empty,X,Empty],[Empty,Empty,Empty]] `shouldBe` (0,0)
+
+    {-
+    it "Returns the last two cells of a row." $
+      restOfRow [[Empty,X,O]] 0 0 `shouldBe` [X,O]
+
+    it "Returns the last cell of the middle row." $
+      restOfRow [[Empty,X,O],[X,Empty,O],[O,X,O]] 1 1 `shouldBe` [O]
+
+    it "Returns the last cell of the last row." $
+      restOfRow [[Empty,X,O],[X,Empty,O],[O,X,O]] 2 1 `shouldBe` [O]
+
+    it "Returns the last two cells of the first row." $
+      restOfRow [[Empty,Empty,Empty], [Empty,X,Empty],[Empty,Empty,Empty]] 0 0 `shouldBe` [Empty,Empty]
+
+    it "Returns the last two rows of a Board." $
+      restOfRows [[Empty,Empty,Empty],[X,O,X],[O,X,O]] 0 `shouldBe` [[X,O,X],[O,X,O]]
+    -}
