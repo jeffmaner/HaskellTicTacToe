@@ -31,30 +31,18 @@ main = do
                                    Just X    -> (X,O)
                                    Just O    -> (O,X)
                                    otherwise -> error "Unrecognized icon specified."
-  putStrLn "Okay! I don't have fancy graphics yet, so you'll have to keep track of the game board yourself."
+  putStrLn "Okay!"
   putStrLn "Please imagine the upper-left corner of the board to be square 0,"
   putStrLn "the top middle, square 1, etc."
 
-  let board = [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]]
+  let f b = playRound b userIcon computerIcon
+  let g b = if inPlay b
+            then do b' <- f b
+                    g b'
+            else return ()
 
-  board0 <- playUser board userIcon
-  draw board0
-  board1 <- playComputer board0 computerIcon
-  draw board1
-  board2 <- playUser board1 userIcon
-  draw board2
-  board3 <- playComputer board2 computerIcon
-  draw board3
-  board4 <- playUser board3 userIcon
-  draw board4
-  board5 <- playComputer board4 computerIcon
-  draw board5
-  board6 <- playUser board5 userIcon
-  draw board6
-  board7 <- playComputer board6 computerIcon
-  draw board7
-  board8 <- playUser board7 userIcon
-  draw board8
+  g [[Empty,Empty,Empty],[Empty,Empty,Empty],[Empty,Empty,Empty]]
+
   putStrLn "Good game!"
 
 parsePreference :: String -> Maybe Icon
@@ -64,35 +52,41 @@ parsePreference s =
     'o'  -> Just O
     otherwise -> Nothing
 
+playRound :: Board -> Icon -> Icon -> IO Board
+playRound b u c = play' b playUser u >>=
+  \b'->if inPlay b'
+      then play' b' playComputer c
+      else return b'
+  where play' b p i = do
+          b' <- p b i
+          draw b'
+          case play b' of
+            WinnerX -> do declareWinner b' X
+            WinnerO -> do declareWinner b' O
+            Draw    -> do declareDraw b'
+            InPlay  -> return b'
+
+inPlay :: Board -> Bool
+inPlay = (InPlay ==) . play
+
 playUser, playComputer :: Board -> Icon -> IO Board
-
 playUser b i = do
-  case play b of
-    WinnerX -> declareWinner b X
-    WinnerO -> declareWinner b O
-    Draw    -> declareDraw b
-    InPlay  -> play' b i
-  where play' b i = do
-          c <- putStr "Please indicate your move. " >> getLine >>= \x->return x
-          let c' = numToCoord (read c :: Int)
-          if isValidMove $ head c
-          then if canPlace b c'
-               then return $ place b i c'
-               else error "There's already an icon there."
-          else error "Ack! Bad input."
+  c <- putStr "Please indicate your move (q to quit). " >> getLine
+  let c' = numToCoord (read c :: Int)
+  if isValidMove $ head c
+  then if canPlace b c'
+       then return $ place b i c'
+       else error "There's already an icon there."
+  else case toLower $ head c of
+         'q'       -> error "Quitting."
+         otherwise -> error "Ack! Bad input."
 
-playComputer b i =
-  case play b of
-    WinnerX -> declareWinner b X
-    WinnerO -> declareWinner b O
-    Draw    -> declareDraw b
-    InPlay  -> play' ()
-  where play' () = do
-          let p = case threats b of
-                    Just x  -> x
-                    Nothing -> preference b
-          putStrLn $ "I play square " ++ (show $ coordToNum p) ++ "."
-          return $ place b i p
+playComputer b i = do
+  let p = case threats b of
+            Just x  -> x
+            Nothing -> preference b
+  putStrLn $ "I play square " ++ (show $ coordToNum p) ++ "."
+  return $ place b i p
 
 isValidMove :: Char -> Bool
 isValidMove = (`elem` ['0'..'8'])
