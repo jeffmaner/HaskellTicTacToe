@@ -45,7 +45,6 @@ play b = case (isFull b, hasWinner b) of
            (True, _)     -> Draw
            otherwise     -> InPlay
 
--- TODO: Fix this. It's very buggy.
 place :: Board -> Icon -> (Int,Int) -> Board
 place b i (x,y)
   | canPlace b (x,y) = place' [] [] 0 0
