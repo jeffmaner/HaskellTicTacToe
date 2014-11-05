@@ -10,6 +10,8 @@ module TicTacToe
    place,
    play,
    preference,
+   --restOfRow, -- TODO: For testing only.
+   --restOfRows, -- TODO: For testing only.
    threats) where
 
 data Icon = Empty | X | O deriving (Eq,Show)
@@ -49,14 +51,11 @@ place b i (x,y)
   | canPlace b (x,y) = place' [] [] 0 0
   | otherwise        = error "An icon already exists there."
   where place' ba ra r c
-          | r==x && c==y = ba ++ [(reverse $ i:ra) ++ restOfRow b r c] ++ restOfRows b r
+          | r==x && c==y = (reverse ba) ++ [(reverse $ i:ra) ++ restOfRow b r c] ++ restOfRows b r
           | c==2       = place' ((reverse (b!!r!!c:ra)):ba) [] (r+1) 0
           | otherwise = place' ba (b!!r!!c:ra) r (c+1)
-        restOfRow b r c = let rs = restOfRows b r
-                           in case rs of
-                                []        -> drop (c+1) $ head b -- I think it's this that's buggy.
-                                otherwise -> drop (c+1) $ head rs
-        restOfRows b r =  drop (r+1) b
+        restOfRow b r c = drop (c+1) (b!!r) -- restOfRow  :: Board -> Int -> Int -> [Icon]
+        restOfRows b r =  drop (r+1) b     -- restOfRows :: Board -> Int -> [[Icon]]
 
 canPlace :: Board -> (Int,Int) -> Bool
 canPlace b (x,y) = isEmpty 0 0
